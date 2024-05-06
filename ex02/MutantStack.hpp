@@ -1,6 +1,8 @@
 #pragma once
 #include <stack>
 
+#define NULL 0
+
 template < typename T>
 class MutantStack: public std::stack<T>
 {
@@ -15,16 +17,19 @@ public:
 	{
 
 	private:
-		typename std::stack<T>::size_type _pos;
+		typename std::stack<T>::size_type	_pos;
+		MutantStack<T>*						_stack;
 
 	public:
 
-		iterator(typename std::stack<T>::size_type s): _pos(s) {};
-		iterator(): _pos(-1) {};
+		iterator(): _pos(0), _stack(NULL) {};
+		iterator(typename std::stack<T>::size_type s): _pos(s), _stack(NULL) {};
+		iterator(MutantStack<T>* ptr): _pos(0), _stack(ptr) {};
+		iterator(typename std::stack<T>::size_type s, MutantStack<T>* ptr): _pos(s), _stack(ptr) {};
 
 		iterator operator++()
 		{
-			if (_pos < this->size())
+			if (_pos < _stack->size())
 				++_pos;
 			else
 				throw(std::exception());
@@ -40,36 +45,46 @@ public:
 			return(*this);
 		};
 
-		bool operator==(iterator& other)
-		{
-			return (this->_pos == other.pos);
-		}
-
 		bool operator!=(iterator& other)
 		{
-			return (this->_pos != other.pos);
+			return (this->_pos != other._pos);
 		}
 
 		T& operator*()
 		{
-			return (this->top());
+			MutantStack<T> tmp;
+
+			for (std::size_t i = 0; i < _pos; i++)
+			{
+				T tmpval = _stack->top();
+				_stack->pop();
+				tmp.push(tmpval);
+			}
+			
+			T& ref = _stack->top();
+			
+			for (std::size_t i = 0; i < _pos; i++)
+			{
+				T tmpval = tmp.top();
+				tmp.pop();
+				_stack->push(tmpval);
+			}
+			
+			return (ref);
 		}
 
 	};
 
-	iterator begin(){ return iterator(0); };
-	iterator end()  { return iterator(this->size()); };
+	iterator it;
+
+	iterator begin(){ return iterator(0, this); 			};
+	iterator end()  { return iterator(this->size(), this);	};
 };
 
-// template < typename T>
-// MutantStack<T>::MutantStack::iterator operator++(MutantStack<T>::MutantStack::iterator it)
-// {
-// 	return(it);
-// }
 
 
 template < typename T>
-MutantStack<T>::MutantStack(/* args */){};
+MutantStack<T>::MutantStack(/* args */): it(this){};
 
 template < typename T>
 MutantStack<T>::~MutantStack(){};

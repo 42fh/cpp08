@@ -5,7 +5,7 @@ SRCS:=main.cpp
 OBJS:= ${SRCS:.cpp=.o} 
 CPPFLAGS:=-Wall -Wextra -Werror -std=c++98 
 
-all: $(NAME) Span.hpp
+all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CXX) $(CPPFLAGS) $(OBJS) -o $(NAME)
